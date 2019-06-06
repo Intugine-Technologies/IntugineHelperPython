@@ -1,6 +1,6 @@
-#!/usr/bin/env python3
 from pymongo import MongoClient
 import os
+import math
 
 
 def square(x):
