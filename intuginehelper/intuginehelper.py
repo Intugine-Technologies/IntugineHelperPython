@@ -17,7 +17,7 @@ def get_distane(src, dest):
 
 
 def get_database():
-    server, port = open('private', 'r').read().rsplit(':', 1)
+    server, port = os.environ['DATABASE_SERVER'].rsplit(':', 1)
     client = MongoClient(server, port=int(port))
     database = client[os.environ['DATABASE_CLIENT']]
     return database
@@ -55,4 +55,41 @@ def get_all_pings(trips_list):
         print(trips_ids)
         print(str(e))
         return []
+
+
+def get_days(diff):
+    return diff.total_seconds() / (24 * 60 * 60)
+
+
+def get_eta_days(trip):
+    if 'eta_days' in trip.keys():
+        eta_days = trip['eta_days']
+        eta_days = str(eta_days) or eta_days  # to remove that None shit in the eta_days
+        try:
+            return float(eta_days)
+        except Exception as e:
+            # print("ERR {0} {1} in {2}".format(e, 'eta_days', trip['_id']))
+            return None
+    else:
+        # print("ERR No {0} in {1}".format('eta_days', trip['_id']))
+        return None
+
+
+def get_eta_hrs(trip):
+    eta_days = get_eta_days(trip)
+    if eta_days is None:
+        if 'eta_hrs' in trip.keys():
+            eta_hrs = str(trip['eta_hrs']) or trip['eta_hrs']  # to remove that None shit in the eta_hrs
+            try:
+                return float(eta_hrs)
+            except Exception as e:
+                print("ERR {} For Trip {}".format(e, trip['_id']))
+    if eta_days is not None:
+        return eta_days * 24
+    else:
+        try:
+            return trip['base_google_time'] / 3600
+        except Exception as e:
+            print(e)
+            return -1
 
