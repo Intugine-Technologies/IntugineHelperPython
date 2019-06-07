@@ -1,29 +1,5 @@
 from pymongo import MongoClient
 import os
-import math
-
-
-def square(x):
-    """
-    :param x:
-    :return: x * x
-    """
-    return x * x
-
-
-def get_distance(src, dest):
-    """
-    :param src: [lat, lng]
-    :param dest: [lat, lng]
-    :return: Distance in meters between src and dest
-    """
-    radius = 6371000  # Radius of the earth in m
-    d_lat = math.radians(dest[0] - src[0])
-    d_lon = math.radians(dest[1] - src[1])
-    a = square(math.sin(d_lat / 2)) + math.cos(math.radians(src[0])) * math.cos(math.radians(dest[0])) * square(
-        math.sin(d_lon / 2))
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    return math.floor(radius * c)  # Distance in m
 
 
 def get_database():
@@ -33,7 +9,20 @@ def get_database():
     return database
 
 
+def get_all_users():
+    """
+    :return: list of all users in database
+    """
+    database = get_database()
+    collection = database['users']
+    data = collection.find({})
+    return list(x for x in data)
+
+
 def get_running_trips():
+    """
+    :return: list of all trips that are running
+    """
     database = get_database()
     collection = database['trips']
     data = collection.find({'running': True, 'user': {
@@ -66,19 +55,6 @@ def get_all_pings(trips_list):
     except Exception as e:
         print(str(e))
         return []
-
-
-def get_days(diff):
-    return diff.total_seconds() / (24 * 60 * 60)
-
-
-def get_days(start, end):
-    """
-    :param start: start datetime object
-    :param end: end datetime object
-    :return: time difference in days as float
-    """
-    return get_days(end - start)
 
 
 def get_eta_days(trip):

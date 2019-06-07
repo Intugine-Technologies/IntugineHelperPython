@@ -6,5 +6,6 @@ IntugineHelper.egg-info/dependency_links.txt
 IntugineHelper.egg-info/requires.txt
 IntugineHelper.egg-info/top_level.txt
 intuginehelper/__init__.py
-intuginehelper/intuginehelper.py
+intuginehelper/intudb.py
+intuginehelper/intuhelper.py
 intuginehelper/intuparser.py
