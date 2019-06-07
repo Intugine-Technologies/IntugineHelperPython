@@ -7,3 +7,4 @@ IntugineHelper.egg-info/requires.txt
 IntugineHelper.egg-info/top_level.txt
 intuginehelper/__init__.py
 intuginehelper/intuginehelper.py
+intuginehelper/intuparser.py
