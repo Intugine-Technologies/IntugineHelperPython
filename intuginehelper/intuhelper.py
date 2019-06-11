@@ -3,6 +3,7 @@ import math
 
 def square(x):
     """
+    Return square of a number
     :param x:
     :return: x * x
     """
@@ -11,6 +12,7 @@ def square(x):
 
 def get_distance(src, dest):
     """
+    Returns the distance between source and destination in meters
     :param src: [lat, lng]
     :param dest: [lat, lng]
     :return: Distance in meters between src and dest
@@ -25,6 +27,11 @@ def get_distance(src, dest):
 
 
 def get_days(diff):
+    """
+    Returns floating point number for days
+    :param diff: timedelta
+    :return: floating number
+    """
     return diff.total_seconds() / (24 * 60 * 60)
 
 

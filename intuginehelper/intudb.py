@@ -1,5 +1,8 @@
 from pymongo import MongoClient
+import datetime
 import os
+
+gmt_to_ist = datetime.timedelta(hours=5, minutes=30)
 
 
 def get_database():
@@ -33,58 +36,88 @@ def get_running_trips():
     return list(x for x in data)
 
 
+def get_trips(user, client, start, end):
+    """
+    :param user: username
+    :param client: client name
+    :param start: start time ex: [2019, 01, 01]
+    :param end:  End Time ex: [2019, 02, 02]
+    :return: list of all the trips with given client name else return all the trips with user
+    """
+    database = get_database()
+    collection = database['trips']
+    start = datetime.datetime(start[2], start[1], start[0]) - gmt_to_ist
+    end = datetime.datetime(end[2], end[1], end[0]) - gmt_to_ist
+
+    query = {
+        'user': user,
+        '$and': [{
+            '$or': [{
+                'startTime': {'$lte': end}
+            }, {
+                'startTime': {'$lte': end.isoformat()}
+            }]
+        }, {
+            '$or': [{
+                'endTime': {'$gte': start}
+            }, {
+                'endTime': {'$gte': start.isoformat()}
+            }, {
+                'running': True
+            }]
+        }
+        ]
+    }
+    if client == '' or client is None:
+        data = collection.find(query)
+    else:
+        query['client_client'] = client
+        data = collection.find(query)
+    if isinstance(data, list):
+        return data
+    else:
+        res = list()
+        for x in data:
+            res.append(x)
+        return res
+
+
 def get_all_pings(trips_list):
     """
-    :param trips_list:
-    :return: list of['tripId' and 'pings' = [] ]
+    get all pings for all the trips
+    :param trips_list: list of all the trips Id's
+    :return: Object containing list of ['_id':'tripId', 'pings': list( all pings )]
     """
     trips_ids = [x['_id'] for x in trips_list]
     database = get_database()
     collection = database['status']
     try:
         data = collection.aggregate([{
-            '$match': {
-                'tripId': {'$in': trips_ids}
-            }
+            '$match': {'tripId': {'$in': trips_ids}}
         }, {
-            '$group': {
-                '_id': '$tripId', 'pings': {'$push': '$$ROOT'}
-            }
-        }])
+            '$group': {'_id': '$tripId', 'pings': {'$push': '$$ROOT'}}
+        }], allowDisUse=True)
         return list(x for x in data)
     except Exception as e:
         print(str(e))
         return []
 
 
-def get_eta_days(trip):
-    if 'eta_days' in trip.keys():
-        eta_days = trip['eta_days']
-        eta_days = str(eta_days) or eta_days  # to remove that None shit in the eta_days
-        try:
-            return float(eta_days)
-        except Exception as e:
-            # print("ERR {0} {1} in {2}".format(e, 'eta_days', trip['_id']))
-            return None
-    else:
-        # print("ERR No {0} in {1}".format('eta_days', trip['_id']))
-        return None
-
-
-def get_eta_hrs(trip):
-    eta_days = get_eta_days(trip)
-    if eta_days is None:
-        if 'eta_hrs' in trip.keys():
-            eta_hrs = str(trip['eta_hrs']) or trip['eta_hrs']  # to remove that None shit in the eta_hrs
-            try:
-                return float(eta_hrs)
-            except Exception as e:
-                print("ERR {} For Trip {}".format(e, trip['_id']))
-    if eta_days is not None:
-        return eta_days * 24
-    else:
-        try:
-            return trip['base_google_time'] / 3600
-        except Exception as e:
-            print(e)
-            return -1
+def get_pings(trips_list, start, end):
+    """
+    get all pings for all the trips that have created at between start and end
+    :param trips_list: list of all the trips Id's
+    :param start: start time for the trips
+    :param end: end time for the trips
+    :return: Object containing list of ['_id':'tripId', 'pings': list( all pings )]
+    """
+    start = datetime.datetime(start[2], start[1], start[0]) - gmt_to_ist
+    end = datetime.datetime(end[2], end[1], end[0]) - gmt_to_ist + datetime.timedelta(1)
+    database = get_database()
+    collection = database['status']
+    data = collection.aggregate([{
+        '$match': {'tripId': {'$in': trips_list}, 'createdAt': {'$gte': start, '$lte': end}}
+    }, {
+        '$group': {'_id': '$tripId', 'pings': {'$push': '$$ROOT'}}
+    }], allowDiskUse=True)
+    return list(x for x in data)
