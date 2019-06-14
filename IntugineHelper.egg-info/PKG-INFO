@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: IntugineHelper
-Version: 0.8
+Version: 0.9
 Summary: A Helper for Intugine
 Home-page: https://github.com/rishabhdeepsingh/IntugineHelper
 Author: Rishabhdeep Singh
@@ -8,8 +8,24 @@ Author-email: rishabhdeepsingh98@gmail.com
 License: UNKNOWN
 Description: ## Intugien Parser 
         
-        to get different database elements like `createdAt`
+        to get different database elements like 
         
+        * `createdAt`
+        * `telephone`
+        * `startTime`
+        * `endTime`
+        * `eta_days`
+        * `eta_hrs`
+        * `ping_rate`
+        * `source`
+        * `destination`
+        * `operator`
+        * `trucknumber`
+        * `running`
+        * `invoice`
+        * `telephone`
+            
+            
         ---
         
         ## Itugine Helper

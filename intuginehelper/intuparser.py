@@ -28,13 +28,39 @@ def get_startTime(trip):
         return get_createdAt(trip)
 
 
+def get_endTime(trip):
+    """
+    Return the time when trip is ended
+    :param trip: Object
+    :return: datetime object for trip end Time
+    """
+    if not get_running(trip):
+        trip_keys = trip.keys()
+        if 'endTime' in trip_keys:
+            end = trip['endTime']
+        elif 'end_time' in trip_keys:
+            end = trip['end_time']
+        elif 'forcedEndTime' in trip_keys:
+            end = trip['forcedEndTime']
+        else:
+            raise Exception('ERR = Parameter for End Time is not defined')
+    else:
+        end = datetime.now()
+    return end
+
+
 def get_eta_days(trip):
+    """
+    Returns the Eta Days of the trip
+    :param trip: Object
+    :return: eta_days of the trip
+    """
     if 'eta_days' in trip.keys():
         eta_days = trip['eta_days']
         eta_days = str(eta_days) or eta_days  # to remove that None shit in the eta_days
         try:
             return float(eta_days)
-        except Exception as e:
+        except ValueError as e:
             # print("ERR {0} {1} in {2}".format(e, 'eta_days', trip['_id']))
             return None
     else:
@@ -43,6 +69,11 @@ def get_eta_days(trip):
 
 
 def get_eta_hrs(trip):
+    """
+    Returns the Eta Hours of the trip if present as eta_days * 24
+    :param trip: Object
+    :return: eta_hrs of the trip
+    """
     eta_days = get_eta_days(trip)
     if eta_days is None:
         if 'eta_hrs' in trip.keys():
@@ -56,7 +87,7 @@ def get_eta_hrs(trip):
     else:
         try:
             return trip['base_google_time'] / 3600
-        except Exception as e:
+        except KeyError as e:
             print(e)
             return -1
 
@@ -74,7 +105,7 @@ def get_ping_rate(trip):
 
 def get_source(trip):
     """
-    Retutn the source name for the trip
+    Return the source name for the trip
     :param trip: trip Object
     :return: string containing source name
     """
@@ -89,6 +120,23 @@ def get_source(trip):
             return ''
     else:
         return ''
+
+
+def get_destination(trip):
+    """
+    Return the Destination name for the trip
+    :param trip: trip Object
+    :return: string containing Destination name
+    """
+    destination = ''
+    if 'destname' in trip.keys():
+        destination = trip['destname']
+    if destination == '':
+        try:
+            destination = trip['dest']
+        except KeyError as e:
+            destination = ''
+    return destination
 
 
 def get_operator(trip):
@@ -132,22 +180,32 @@ def get_running(trip):
     return trip['running']
 
 
-def get_endTime(trip):
+def get_invoice(trip):
     """
-    Return the time when trip is ended
+    Returns the invoice of the trip
     :param trip: Object
-    :return: datetime object for trip end Time
+    :return: String containing invoice
     """
-    if not get_running(trip):
-        trip_keys = trip.keys()
-        if 'endTime' in trip_keys:
-            end = trip['endTime']
-        elif 'end_time' in trip_keys:
-            end = trip['end_time']
-        elif 'forcedEndTime' in trip_keys:
-            end = trip['forcedEndTime']
-        else:
-            raise Exception('ERR = Parameter for End Time is not defined')
+    invoice = ''
+    if 'invoice' in trip.keys():
+        invoice = trip['invoice']
+    if invoice == '' and 'jobs' in trip.keys():
+        try:
+            invoice = trip['jobs']
+        except KeyError as e:
+            invoice = ''
     else:
-        end = datetime.now()
-    return end
+        invoice = ''
+    return invoice
+
+
+def get_telephone(trip):
+    """
+    Returns the telephone number
+    :param trip: Object
+    :return: string containing telephone number
+    """
+    tel = trip['tel']
+    if isinstance(tel, list):
+        tel = tel[0]
+    return tel
