@@ -167,7 +167,10 @@ def get_truck_number(trip):
     if 'truck_number' in trip.keys():
         truck_number = trip['truck_number']
     if truck_number == '':
-        truck_number = trip['vehicle']
+        try:
+            truck_number = trip['vehicle']
+        except KeyError as e:
+            truck_number = ''
     return truck_number
 
 
