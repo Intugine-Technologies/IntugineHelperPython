@@ -87,8 +87,8 @@ def get_trips(query, start, end):
     """
     Returns All trips
     :param query: query string
-    :param start: start time as array [YYYY, MM, DD]
-    :param end:   end time as array [YYYY, MM , DD]
+    :param start: start time as array [DD, MM, YYYY]
+    :param end:   end time as array [DD, MM , YYYY]
     :return: all running trips data
     """
     start = datetime.datetime(start[2], start[1], start[0]) - gmt_to_ist
