@@ -199,6 +199,12 @@ def get_invoice(trip):
             invoice = ''
     else:
         invoice = ''
+    if invoice == '':
+        if 'ShipmentId' in trip.keys():
+            invoice = trip['ShipmentId']
+        if invoice == '':
+            if 'lr_number' in trip.keys():
+                invoice = trip['lr_number']
     return invoice
 
 

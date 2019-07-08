@@ -9,3 +9,4 @@ intuginehelper/__init__.py
 intuginehelper/intudb.py
 intuginehelper/intuhelper.py
 intuginehelper/intuparser.py
+test/test.py

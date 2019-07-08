@@ -1,6 +1,5 @@
-build/*
 .idea/*
-
+__pycache__/
 
 # Distribution / packaging
 .Python
@@ -16,6 +15,7 @@ parts/
 sdist/
 var/
 wheels/
+test/
 *.egg-info/
 .installed.cfg
 *.egg

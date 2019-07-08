@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 import datetime
 import os
+import json
 
 gmt_to_ist = datetime.timedelta(hours=5, minutes=30)
 
@@ -18,7 +19,7 @@ def get_all_users():
     """
     database = get_database()
     collection = database['users']
-    data = collection.find({})
+    data = collection.find({ })
     return list(x for x in data)
 
 
@@ -28,11 +29,11 @@ def get_running_trips():
     """
     database = get_database()
     collection = database['trips']
-    data = collection.find({'running': True, 'user': {
+    data = collection.find({ 'running': True, 'user': {
         '$nin': os.environ['BLACKLIST_CLIENTS'].split(',')
     }, 'client_client': {
         '$nin': os.environ['BLACKLIST_CLIENT_CLIENT'].split(',')
-    }})
+    } })
     return list(x for x in data)
 
 
@@ -53,15 +54,15 @@ def get_trips(user, client, start, end):
         'user': user,
         '$and': [{
             '$or': [{
-                'startTime': {'$lte': end}
+                'startTime': { '$lte': end }
             }, {
-                'startTime': {'$lte': end.isoformat()}
+                'startTime': { '$lte': end.isoformat() }
             }]
         }, {
             '$or': [{
-                'endTime': {'$gte': start}
+                'endTime': { '$gte': start }
             }, {
-                'endTime': {'$gte': start.isoformat()}
+                'endTime': { '$gte': start.isoformat() }
             }, {
                 'running': True
             }]
@@ -82,6 +83,44 @@ def get_trips(user, client, start, end):
         return res
 
 
+def get_trips(query, start, end):
+    """
+    Returns All trips
+    :param query: query string
+    :param start: start time as array [YYYY, MM, DD]
+    :param end:   end time as array [YYYY, MM , DD]
+    :return: all running trips data
+    """
+    start = datetime.datetime(start[2], start[1], start[0]) - gmt_to_ist
+    end = datetime.datetime(end[2], end[1], end[0]) - gmt_to_ist
+    if isinstance(query, str):
+        query = json.loads(query)
+    if '$and' not in query.keys():
+        query["$and"] = []
+    query["$and"] += ({
+                          '$or': [{
+                              'startTime': { '$lte': end }
+                          }, {
+                              'startTime': { '$lte': end.isoformat() }
+                          }]
+                      }, {
+                          '$or': [{
+                              'endTime': { '$gte': start }
+                          }, {
+                              'endTime': { '$gte': start.isoformat() }
+                          }, {
+                              'running': True
+                          }]
+                      })
+    database = get_database()
+    collection = database['trips']
+    data = collection.find(query)
+    res = list()
+    for x in data:
+        res.append(x)
+    return res
+
+
 def get_all_pings(trips_list):
     """
     get all pings for all the trips
@@ -93,9 +132,9 @@ def get_all_pings(trips_list):
     collection = database['status']
     try:
         data = collection.aggregate([{
-            '$match': {'tripId': {'$in': trips_ids}}
+            '$match': { 'tripId': { '$in': trips_ids } }
         }, {
-            '$group': {'_id': '$tripId', 'pings': {'$push': '$$ROOT'}}
+            '$group': { '_id': '$tripId', 'pings': { '$push': '$$ROOT' } }
         }], allowDisUse=True)
         return list(x for x in data)
     except Exception as e:
@@ -116,8 +155,8 @@ def get_pings(trips_list, start, end):
     database = get_database()
     collection = database['status']
     data = collection.aggregate([{
-        '$match': {'tripId': {'$in': trips_list}, 'createdAt': {'$gte': start, '$lte': end}}
+        '$match': { 'tripId': { '$in': trips_list }, 'createdAt': { '$gte': start, '$lte': end } }
     }, {
-        '$group': {'_id': '$tripId', 'pings': {'$push': '$$ROOT'}}
+        '$group': { '_id': '$tripId', 'pings': { '$push': '$$ROOT' } }
     }], allowDiskUse=True)
     return list(x for x in data)
