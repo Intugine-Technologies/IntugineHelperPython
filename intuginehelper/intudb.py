@@ -135,7 +135,7 @@ def get_all_pings(trips_list):
             '$match': { 'tripId': { '$in': trips_ids } }
         }, {
             '$group': { '_id': '$tripId', 'pings': { '$push': '$$ROOT' } }
-        }], allowDisUse=True)
+        }], allowDiskUse=True)
         return list(x for x in data)
     except Exception as e:
         print(str(e))

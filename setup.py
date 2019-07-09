@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='IntugineHelper',
-    version='1.0',
+    version='1.1',
     author="Rishabhdeep Singh",
     author_email="rishabhdeepsingh98@gmail.com",
     description="A Helper for Intugine",
