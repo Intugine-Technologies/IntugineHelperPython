@@ -1,4 +1,12 @@
-## Intugien Parser 
+
+## Installation
+To Install IntugineHelper from the [Python Package Index](https://pypi.org/project/IntugineHelper/), simply:
+
+    pip3 install intuginehelper
+
+## Usage
+
+### Intugien Parser 
 
 to get different database elements like 
 
@@ -18,7 +26,7 @@ to get different database elements like
 * `telephone`
     
     
----
+--------------
 
 ## Itugine Helper
 
