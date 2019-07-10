@@ -3,6 +3,12 @@
 To Install IntugineHelper from the [Python Package Index](https://pypi.org/project/IntugineHelper/), simply:
 
     pip3 install intuginehelper
+    
+## Updating 
+
+    increment the version
+    python3 setup.py sdist bdist_wheel
+    python3 -m twine upload dist/*
 
 ## Usage
 

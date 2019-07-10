@@ -192,6 +192,8 @@ def get_invoice(trip):
     invoice = ''
     if 'invoice' in trip.keys():
         invoice = trip['invoice']
+        if invoice != '':
+            return invoice
     if invoice == '' and 'jobs' in trip.keys():
         try:
             invoice = trip['jobs']
